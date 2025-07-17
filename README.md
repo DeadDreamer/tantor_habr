@@ -7,7 +7,9 @@ bla bla bla
 bla bla bla
 
 ## Готовые opensource решения
+Краткий обзор что есть, какие у них минусы и плюсы
 bla bla bla
 
 ## Платформа Tantor
+Все в одном и не только мониторинг
 bla bla bla
