@@ -11,7 +11,8 @@
 По каждому варианту поймем все плюсы и минусы, чтобы вы могли объективно выбрать именно ваш путь.
 
 ## Все самому с помощью Prometheus + Grafana
-На связке Prometheus с Grafana строят свои системы мониторинга большинство кампаний. Здесь основное преимущество в том, что есть готовые экспортеры в Prometheus для разных систем и можно быстро развивать и настраивать систему мониторинга подходящую под практически любые нужды. У вас не будет зоопарка разных инструментов, все консистентно и единообразно.
+На связке Prometheus с Grafana строят свои системы мониторинга большинство кампаний. Здесь основное преимущество в том, что есть готовые экспортеры в Prometheus для разных систем и можно быстро развивать и настраивать систему мониторинга подходящую под практически любые нужды. У вас не будет зоопарка разных инструментов, все консистентно и единообразно. Научившить один раз настраивать конфигурации описанные ниже вы сможете собирать мониторинг абсолютно любых систем и сервисов в вашей организации.
+
 ![Мониторинг PosgreSQL с Prometheus и Grafana](/images/prometheus.drawio.png)
 
 Для того чтобы это настроить вам понадобится:
@@ -20,7 +21,7 @@ https://github.com/prometheus-community/postgres_exporter/
 По сути это агент, который будет собирать метрики PostgreSQL и отдавать их в Prometheus по локальному endpoint (далее Prometheus опрашивает этот адрес каждые n секунд и складывать в свою time series БД).
 
 ---
-#### Принцип работы postgres_exporter
+#### Принцип работы postgres_exporter (равно как и любых других экспортеров для Grafana)
 ##### Подключение к PG:
 postgres_exporter подключается к PostgreSQL через стандартное подключение (обычно TCP-соединение через порт 5432) и гоняет к нему стандантные SQL запросы за метриками.
 По правам он использует специально созданного PG пользователя с правами на чтение информации о состоянии сервера (например, членство в роли pg_monitor).
@@ -56,7 +57,7 @@ GRANT pg_monitor TO postgres_exporter;
 ```
 Далее необходимо настроить запуск postgres_exporter в виде сервиса (systemd)
 
-### 2. Настройка запуска postgres_exporter в виде сервиса (systemd):
+### 2. Настроить запуск postgres_exporter в виде сервиса (systemd):
 Создаем файлик /etc/systemd/system/postgres_exporter.service:
 ```
 [Unit]
@@ -91,6 +92,48 @@ systemctl enable postgres_exporter
 Проверьте доступность метрик по адресу:
 http://<IP_postgres_exporter>:9187/metrics
 
+### 3. Установить и настроить Prometheus:
+Далее нам надо установить [Prometheus](https://prometheus.io/download/) и добавить наш endpoint exporter'а в его конфиг /etc/prometheus/prometheus.yml
+```
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['IP_postgres_exporter:9187']
+
+```
+
+Запускаем Prometheus и добавляет его в автозагрузку:
+```
+systemctl restart prometheus
+systemctl enable prometheus
+```
+
+Приверить, что метрики собираются можно зайдя по адресу http://<IP_prometheus>:9090
+
+### 4. Установка Grafana и подключение Prometheus как источника данных:
+Следующим шагом требуется установить Grafana и подключить наш Prometheus как источник данных. Для этого:
+1. Заходим в Grafana: http://<IP_grafana>:3000
+2. Открываем раздел: 
+```
+Configuration → Data sources → Add data source → Prometheus
+```
+3. Указываем URL нашего Prometheus
+```
+http://<IP_prometheus>:9090
+```
+
+### 5. Добавим готовые дашборды PostgreSQL в Grafana:
+Лучше взять готовые проверенные дашборды:
+- Postgres Overview <https://grafana.com/grafana/dashboards/455-postgres-overview/>
+
+![Дашборд Postgres Overview](/images/pg_overview.png)
+
+- PostgreSQL Database <https://grafana.com/grafana/dashboards/9628-postgresql-database/>
+
+![Дашборд PostgreSQL Database](/images/pg_database.png)
 
 ## Готовые opensource решения
 Краткий обзор что есть, какие у них минусы и плюсы
