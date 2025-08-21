@@ -1,0 +1,55 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor #F8F9FA
+  BorderColor #333
+  RoundCorner 15
+}
+
+actor "DBA / Разработчик" as User
+
+rectangle "PostgreSQL Cluster" as PG {
+  component "PostgreSQL" as Postgres
+  database "pg_stat_* \npg_stat_statements \npg_stat_io \nи др." as Stats
+  Postgres -down-> Stats : обновляет системные вьюхи
+}
+
+rectangle "pganalyze Collector" as Collector {
+  component "Collector Agent" as Agent
+}
+
+rectangle "pganalyze Backend\n(OnPrem или их SaaS)" as Cloud {
+  component "Ingest API" as API
+  component "Analyzer Engine" as Engine
+  database "Time-Series Storage" as TSDB
+  component "Recommendations Engine" as Rec
+  component "Web UI / Dashboards" as UI
+}
+
+' Потоки данных
+User --> UI : Просмотр дашбордов,\nметрик, алертов
+Agent --> API : Метрики, статистика,\nSQL-запросы, EXPLAIN
+API --> Engine : Обработка и нормализация
+Engine --> TSDB : Запись метрик и истории
+Engine --> Rec : Анализ конфигурации,\nрекомендации
+Rec --> UI : Советы по настройке,\nалерты
+PG --> Agent : pg_stat_* данные,\nWAL info, EXPLAIN план
+UI --> User : Веб-интерфейс\n(графики, алерты)
+
+' Note блоки для кратких пояснений
+note right of PG
+  PostgreSQL отдаёт Collector-агенту
+  данные от pg_stat_* вьюх
+  и EXPLAIN планов.
+end note
+
+note bottom of Collector
+  Лёгкий агент (Go).
+  Подключается к Postgres,
+  забирает статистику и
+  шлёт её в облако.
+  Обычно ставится на сам хост
+  с СУБД.
+end note
+
+@enduml
