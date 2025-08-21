@@ -1,0 +1,73 @@
+@startuml
+top to bottom direction
+
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor #F8F9FA
+  BorderColor #444
+  RoundCorner 12
+}
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #999
+skinparam defaultTextAlignment left
+
+actor "DBA / DevOps" as USER
+
+' === Верх: пользователь и балансировщик ===
+rectangle "Load Balancer (nginx)" as LB
+
+' === Платформа (единый блок с модулями) ===
+rectangle "Tantor Platform" as TP {
+  rectangle "Frontend" as FE
+  rectangle "Backend API\n(REST / WebSocket)" as BE
+  rectangle "Keeper\n(ingest/\nнормализация\nметрик)" as KPR
+  rectangle "PG Configurator\n(рекомендации/\nпатчи конфигурации)" as PGC
+  database "OperDB\n(PostgreSQL\n+ PgBouncer)" as OPER
+}
+
+' === Связующая шина и интеграции (рядом) ===
+cloud "NATS\n(message bus)" as NATS
+
+rectangle "Интеграции\n(Мессенджеры/\nTriafly BI/\nSIEM)" as INT
+
+' === Низ: хост с БД и агентом ===
+package "DB Host" as HOST {
+  database "PostgreSQL\n(User DB)" as DB
+  rectangle "OS" as OS
+  rectangle "Agent\n(мониторинг + операции)" as AG
+}
+
+' ---------- Пользовательский путь (сверху вниз)
+USER --> LB : HTTPS (браузер)
+LB --> FE : HTTP(S)
+FE --> BE : REST / WebSocket
+
+' ---------- Внутренние связи платформы
+KPR --> OPER : SQL (метрики\n/агрегации)
+BE  --> OPER : SQL (каталог,\nсобытия, ACL)
+BE <--> PGC  : REST (анализ\nпараметров,\nрекомендации)
+
+' ---------- Шина сообщений
+AG --> NATS : publish\nmetrics/\nevents
+KPR <-- NATS : subscribe\nmetrics/\nevents
+BE  --> NATS : publish\ncommands/\njobs
+AG <-- NATS : subscribe\ncommands/\njobs
+
+' ---------- Интеграции остаются на Backend
+BE --> INT : alerts\n/export\n/syslog
+
+' ---------- Доступ агента к БД и ОС
+AG --> DB : SQL (pg_stat_* / logs /\nEXPLAIN/ANALYZE)
+AG --> OS : procfs/sys\n(CPU/RAM/\nIO/FS/Net)
+
+' ----------- Поясняющие заметки
+
+note bottom of NATS
+  Асинхронная шина:
+  • Метрики и события от агента
+  • Команды и задачи от Backend
+  • Поддержка горизонтального
+  масштабирования
+end note
+
+@enduml
