@@ -197,11 +197,11 @@ https://www.percona.com/software/database-tools/percona-monitoring-and-managemen
 
 | Возможность                     | Описание |
 |--------------------------------|----------|
-| **Шаблонные дашборды Grafana для PostgreSQL** | Включают все основные метрики: CPU, память, I/O, соединения, tuples, индексы, сетевой трафик, процессы и прочее ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management/postgresql-monitoring)). |
-| **Анализ запросов**      | Анализ SQL-запросов: медленные, ресурсоёмкие, с деталями EXPLAIN и историей выполнения ([подробнее](https://www.percona.com/blog/inspecting-mysql-servers-part-5-percona-monitoring-and-management/)). |
-| **Аннотации (Annotations)**    | Удобная возможность вручную отмечать события (деплой, сбой и т.п.) прямо на графиках для анализа причин проблем ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management/postgresql-monitoring?utm_source=chatgpt.com)). |
-| **Percona Advisors**           | Автоматический анализ конфигураций и рекомендации по безопасности и производительности ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management/postgresql-monitoring)). |
-| **Alerting & управление**      | Настройка алертов, возможность бэкапов и восстановления ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management)). |
+| Шаблонные дашборды Grafana для PostgreSQL | Включают все основные метрики: CPU, память, I/O, соединения, tuples, индексы, сетевой трафик, процессы и прочее ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management/postgresql-monitoring)). |
+| Анализ запросов      | Анализ SQL-запросов: медленные, ресурсоёмкие, с деталями EXPLAIN и историей выполнения ([подробнее](https://www.percona.com/blog/inspecting-mysql-servers-part-5-percona-monitoring-and-management/)). |
+| Аннотации (Annotations)    | Удобная возможность вручную отмечать события (деплой, сбой и т.п.) прямо на графиках для анализа причин проблем ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management/postgresql-monitoring?utm_source=chatgpt.com)). |
+| Percona Advisors          | Автоматический анализ конфигураций и рекомендации по безопасности и производительности ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management/postgresql-monitoring)). |
+| Alerting & управление      | Настройка алертов, возможность бэкапов и восстановления ([подробнее](https://www.percona.com/software/database-tools/percona-monitoring-and-management)). |
 
 #### Минусы и плюсы PMM
 ##### Плюсы
@@ -233,12 +233,12 @@ Python (Flask) + psycopg/libpq. Работает в двух режимах - De
 
 | Возможность | Описание |
 | --- | --- |
-| **Дашборды** | «Живые» графики: CPU/IO wait (условное по PostgreSQL, а не хостовые), активные/idle сессии, число блокировок, tuples in/out, чекпоинты, WAL-активность. Данные берутся из `pg_stat_activity`, `pg_stat_database`, `pg_stat_bgwriter`, `pg_stat_replication` и др. |
-| **Activity / Locks / Sessions** | Просмотр текущих запросов, планов, блокировок, ожиданий, отмена/terminate процессов. |
-| **Query Tool** | SQL редактор, EXPLAIN/EXPLAIN ANALYZE, автоформатирование, история запросов. |
-| **Maintenance** | VACUUM/REINDEX/ANALYZE/CLUSTER, бэкапы/восстановление (обёртки над `pg_dump/pg_restore`). |
-| **Управление СУБД** | Роли/права, таблицы, индексы, партиции, расширения (в т.ч. `pg_stat_statements`). |
-| **Аутентификация/Роли в UI** | Учетки самого pgAdmin, группы, хранение подключений, SSO (LDAP/OAuth) |
+| Дашборды | «Живые» графики: CPU/IO wait (условное по PostgreSQL, а не хостовые), активные/idle сессии, число блокировок, tuples in/out, чекпоинты, WAL-активность. Данные берутся из `pg_stat_activity`, `pg_stat_database`, `pg_stat_bgwriter`, `pg_stat_replication` и др. |
+| Activity / Locks / Sessions | Просмотр текущих запросов, планов, блокировок, ожиданий, отмена/terminate процессов. |
+| Query Tool | SQL редактор, EXPLAIN/EXPLAIN ANALYZE, автоформатирование, история запросов. |
+| Maintenance | VACUUM/REINDEX/ANALYZE/CLUSTER, бэкапы/восстановление (обёртки над `pg_dump/pg_restore`). |
+| Управление СУБД | Роли/права, таблицы, индексы, партиции, расширения (в т.ч. `pg_stat_statements`). |
+| Аутентификация/Роли в UI | Учетки самого pgAdmin, группы, хранение подключений, SSO (LDAP/OAuth) |
 
 #### Минусы и плюсы pgAdmin 4
 ##### Плюсы
