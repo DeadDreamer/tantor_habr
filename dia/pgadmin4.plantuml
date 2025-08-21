@@ -1,0 +1,43 @@
+@startuml
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam wrapWidth 220
+skinparam defaultTextAlignment left
+
+actor User as U
+
+package "pgAdmin 4 (Server)" as PGADMIN {
+  [Web UI\n(Flask app)] as WEB
+  [pgAdmin Backend\n(session mgr, jobs,\nconfig, auth)] as BACK
+  database "pgAdmin Internal DB\n(SQLite/PostgreSQL)\n(учётные записи,\nподключения, настройки)" as PADB
+}
+
+package "Target PostgreSQL Hosts" as PGHOSTS {
+  [PostgreSQL Server #1] as PG1
+  [PostgreSQL Server #N] as PGN
+}
+
+U --> WEB : HTTP\nBrowser
+WEB --> BACK : REST calls\n(actions, dashboards)
+BACK --> PADB : CRUD\n(пользователи,\nподключения)
+BACK --> PG1 : psycopg\n(SQL, pg_stat_*\nEXPLAIN, maintenance)
+BACK --> PGN
+
+note right of PG1
+  Источники данных для дашборда:
+  - pg_stat_activity
+  - pg_stat_database
+  - pg_stat_bgwriter
+  - pg_stat_replication
+  - pg_stat_statements (если стоит)
+  - системные функции (WAL, чекпоинты и т.п.)
+end note
+
+' Ограничения
+note bottom of WEB
+  Нет долговременного хранилища метрик.
+  Виджеты показывают текущее/недавнее состояние
+  по результатам опроса самого PostgreSQL.
+end note
+
+@enduml
